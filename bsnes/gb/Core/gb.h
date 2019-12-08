@@ -1,7 +1,6 @@
 #ifndef GB_h
 #define GB_h
 #define typeof __typeof__
-#define _XOPEN_SOURCE 500
 #include <stdbool.h>
 #include <stdint.h>
 #include <time.h>
