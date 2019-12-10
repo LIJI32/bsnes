@@ -66,12 +66,14 @@ auto ICD::main() -> void {
   return synchronizeCPU();
   #endif
 
-  if(r6003 & 0x80) {
-    auto clocks = GB_run(&sameboy);
-    step(clocks >> 1);
-  } else {  //DMG halted
-    apuWrite(0.0, 0.0);
-    step(128);
+  if (clock <= 0) {
+      if(r6003 & 0x80) {
+        auto clocks = GB_run(&sameboy);
+        step(clocks >> 1);
+      } else {  //DMG halted
+        apuWrite(0.0, 0.0);
+        step(128);
+      }
   }
   synchronizeCPU();
 }
@@ -87,12 +89,11 @@ auto ICD::load() -> bool {
   if(Frequency == 0) {
     GB_init(&sameboy, GB_MODEL_SGB_NO_SFC);
     GB_load_boot_rom_from_buffer(&sameboy, (const unsigned char*)&SGB1BootROM[0], 256);
-    GB_set_sample_rate(&sameboy, 32768);
   } else {
     GB_init(&sameboy, GB_MODEL_SGB2_NO_SFC);
     GB_load_boot_rom_from_buffer(&sameboy, (const unsigned char*)&SGB2BootROM[0], 256);
-    GB_set_sample_rate(&sameboy, 32000);
   }
+  GB_set_sample_rate(&sameboy, (Frequency ? Frequency : system.cpuFrequency()) / 5 / 128);
   GB_set_highpass_filter_mode(&sameboy, GB_HIGHPASS_ACCURATE);
   GB_set_icd_hreset_callback(&sameboy, &SameBoy::hreset);
   GB_set_icd_vreset_callback(&sameboy, &SameBoy::vreset);
