@@ -55,13 +55,16 @@ auto ICD::writeIO(uint addr, uint8 data) -> void {
     if((r6003 & 0x80) == 0x00 && (data & 0x80) == 0x80) {
       power(true);  //soft reset
     }
-    auto frequency = system.cpuFrequency();
+    auto frequency = (Frequency ? Frequency : system.cpuFrequency());
     switch(data & 3) {
     case 0: this->frequency = frequency / 4; break;  //fast (glitchy, even on real hardware)
     case 1: this->frequency = frequency / 5; break;  //normal
     case 2: this->frequency = frequency / 7; break;  //slow
     case 3: this->frequency = frequency / 9; break;  //very slow
     }
+    /* TODO (LIJI): After chaing frequency, the audio stream's frequency must be
+                    set to `frequency / 128` for audio to properly function; I'm
+                    just not entirely sure what's the correct way to do it. */
     r6003 = data;
     return;
   }
